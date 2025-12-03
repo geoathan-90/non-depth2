@@ -6,6 +6,9 @@ from helpers import *
 
 ####  Known data  ####
 
+concrete_price = 110  # €/m3
+steel_price = 1.5  # €/kg
+
 water_density = 1000  # kg/m3           # ειδικό βάρος νερού
 concrete_density = 2400  # kg/m3        # ειδικό βάρος οπλισμένου σκυροδέματος
 aoplo_density = 2000  # kg/m3           # ειδικό βάρος άοπλου σκυροδέματος
@@ -141,27 +144,42 @@ styliskos_selected_aux  = styliskos_options[1]
 styliskos_rod_length = H + h1 + h2 - h5 - 0.15
 
 styliskos_rod_number1= styliskos_rod_parser(styliskos_selected_main)[0]
-styliskos_rod_number2= styliskos_rod_parser(styliskos_selected_main)[2]
 styliskos_rod_diameter1= styliskos_rod_parser(styliskos_selected_main)[1]
+styliskos_rod_number2= styliskos_rod_parser(styliskos_selected_main)[2]
 styliskos_rod_diameter2= styliskos_rod_parser(styliskos_selected_main)[3]
 
-#### run module ####
+styliskos_tserki_length = (C1 - 2*buffer)*4 + 0.10*2 
+styliskos_tserki_diameter, styliskos_tserki_spacing = styliskos_tserki_parser(styliskos_selected_aux)
+styliskos_tserki_number = np.ceil((styliskos_rod_length)/(styliskos_tserki_spacing/100)+1)
 
+#----------------------------
+####      ΑΠΟΣΤΑΤΕΣ      ####
+#----------------------------
+
+apostates_length = (h4 - 2*buffer)+0.10*2
+apostates_number = int((A-2*buffer)**2)
+
+#-------------------------------------------
+#### ΠΡΟΣΘΕΤΟΙ ΟΠΛΙΣΜΟΙ ΕΦΕΛΚΥΣΜΟΥ      ####
+#-------------------------------------------
+
+extra_rod_diameter = 20.0 #cn
+extra_rod_spacing = 0.45  #m
+extra_rod_length = uplift_rod_length/2 + (h4-2*buffer)*2 + 0.25*2
+extra_rod_number = np.ceil((uplift_rod_length/2/extra_rod_spacing+1)*2)
+
+#-------------------------------------------
+####          Kostos          ####
+#-------------------------------------------
+
+Ogkos_ekskafis = A**2*H  # m3
+Ogkos_betou = V_styliskos + volume(A, h4) + volume(A, h5)  # m3
+Ogkos_epixosis = (A**2 - C1**2)*(h3 + prostheti_epixosi)  # m3
+
+columns = ['Χαρακτηρισμός','Οπλισμός','Τεμάχια','Μήκος','Βάρος/τεμ. (kg)','Συνολικό βάρος (kg)'] 
+
+
+#### run module ####
 if __name__ == "__main__":
     
-#     print("Όγκος στυλίσκου (m3): ", round(V_styliskos, 2))
-#     print("Όγκος σκυροδέματος (m3): ", round(V_betoy, 2))
-    
-#     print("Συνολικό βάρος θεμελίωσης (kg): ", round(Btot, 2))
-#     print("Ενεργό βάρος θεμελίωσης (kg): ", round(Bactive, 2))
-#     print("Καταπόνηση εδάφους (kg/cm2): ", round(sed, 2))
-#     print("Καταπόνηση εδάφους worst case (kg/cm2): ", round(sed_worst_case, 2))
-    
-#     print(Kh, Ke, fex_thipsi, compression_options)
-#     print(qep, qb)
-
-        # print(compression_options)
-        # print(uplift_options)
-        # print(styliskos_options)
-        
         pass
