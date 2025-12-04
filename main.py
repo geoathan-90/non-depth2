@@ -14,27 +14,36 @@ concrete_density = 2400  # kg/m3        # ειδικό βάρος οπλισμέ
 aoplo_density = 2000  # kg/m3           # ειδικό βάρος άοπλου σκυροδέματος
 epixosi_density = 1600  # kg/m3         # ειδικό βάρος επίχωσης
 
-h1 = 0.05  # m στυλίσκος μέχρι κόμβο
-h5 = 0.10  # m ύψος άοπλου μπετού
+
+
 
 #### conditions ####
 
 Tower = "T5"
+skelos = "+4"
+epimikinsi_styliskoy = "+1"
 
 sed_allowed = 0.5  # kg/cm2
 water_height = 1.1  # m
 
 buffer = 0.05 # m επικάλυψη οπλισμού
 
+h1 = 0.05  # m στυλίσκος μέχρι κόμβο
+h5 = 0.10  # m ύψος άοπλου μπετού
+
 #### variables ####
 
 prostheti_epixosi = 0.25  # m
+
 H = 1.70  # m  Βάθος εκσκαφής μέχρι κάτω από το μπλοκέτο
+
 h2 = 1.45  # m  ύψος στυλίσκου μέχρι κόμβο (σχεδόν)
-h4 = 0.80  # m  ύψος κεφαλόδεσμου
+
+h4 = 0.80  # m  ύψος πλάκας
+
+A = 8.10  # m πλευρά πλάκας
 
 C1 = 0.80  # m  πλευρά στυλίσκου
-A = 8.10  # m πλευρά κεφαλόδεσμου
 
 #### fundamental calcs ####
 
@@ -211,7 +220,26 @@ rows.append({
     'Συνολικό βάρος (kg)': upl_weight_per_piece * uplift_rod_number
 })
 
-#### 3. Διαμήκεις ράβδοι στυλίσκου ####
+#### 3. Πρόσθετοι οπλισμοί εφελκυσμού (αν χρειάζονται) ####
+
+if A>5.0:
+        ex_d = extra_rod_diameter
+        ex_spacing_cm = extra_rod_spacing * 100.0  # από m σε cm για να είναι συμβατό με τα άλλα
+        ex_n = int(extra_rod_number)
+        ex_w_kg_per_m = rebar_kg_per_m(ex_d)
+        ex_weight_per_piece = ex_w_kg_per_m * extra_rod_length
+
+        rows.append({
+        'Χαρακτηρισμός': 'Πλάκα - πρόσθετος οπλισμός εφελκυσμού',
+        'Οπλισμός': f'#Φ{int(ex_d)}/{ex_spacing_cm}',
+        'Τεμάχια': ex_n,
+        'Μήκος': extra_rod_length,
+        'Διάκενο': ex_spacing_cm,
+        'Βάρος/τεμ. (kg)': ex_weight_per_piece,
+        'Συνολικό βάρος (kg)': ex_weight_per_piece * ex_n
+        })
+
+#### 4. Διαμήκεις ράβδοι στυλίσκου ####
 # Πρώτη διάμετρος
 if styliskos_rod_number1 > 0:
     st1_d = styliskos_rod_diameter1
@@ -246,7 +274,7 @@ if styliskos_rod_number2 > 0:
         'Συνολικό βάρος (kg)': st2_weight_per_piece * st2_n
     })
 
-#### 4. Τσέρκια στυλίσκου ####
+#### 5. Τσέρκια στυλίσκου ####
 ts_d = styliskos_tserki_diameter
 ts_spacing_cm = styliskos_tserki_spacing
 ts_n = int(styliskos_tserki_number)
@@ -263,7 +291,7 @@ rows.append({
     'Συνολικό βάρος (kg)': ts_weight_per_piece * ts_n
 })
 
-#### 5. Αποστάτες  ####
+#### 6. Αποστάτες  ####
 apostates_diameter = 20  # mm
 ap_n = int(apostates_number)
 ap_w_kg_per_m = rebar_kg_per_m(apostates_diameter)
@@ -279,26 +307,6 @@ rows.append({
     'Συνολικό βάρος (kg)': ap_weight_per_piece * ap_n
 })
 
-#### 6. Πρόσθετοι οπλισμοί εφελκυσμού (αν χρειάζονται) ####
-
-if A>5.0:
-        ex_d = extra_rod_diameter
-        ex_spacing_cm = extra_rod_spacing * 100.0  # από m σε cm για να είναι συμβατό με τα άλλα
-        ex_n = int(extra_rod_number)
-        ex_w_kg_per_m = rebar_kg_per_m(ex_d)
-        ex_weight_per_piece = ex_w_kg_per_m * extra_rod_length
-
-        rows.append({
-        'Χαρακτηρισμός': 'Πλάκα - πρόσθετος οπλισμός εφελκυσμού',
-        'Οπλισμός': f'#Φ{int(ex_d)}/{ex_spacing_cm}',
-        'Τεμάχια': ex_n,
-        'Μήκος': extra_rod_length,
-        'Διάκενο': ex_spacing_cm,
-        'Βάρος/τεμ. (kg)': ex_weight_per_piece,
-        'Συνολικό βάρος (kg)': ex_weight_per_piece * ex_n
-        })
-
-
 #### Build DataFrame ####
 
 columns = ['Χαρακτηρισμός','Οπλισμός','Τεμάχια','Μήκος','Διάκενο',
@@ -309,9 +317,8 @@ df_rods['Βάρος/τεμ. (kg)'] = df_rods['Βάρος/τεμ. (kg)'].round(2)
 df_rods['Συνολικό βάρος (kg)'] = df_rods['Συνολικό βάρος (kg)'].round(2)
 
 # Optional: print or export
-print(df_rods)
-# df_rods.to_excel('oplismoi_podias.xlsx', index=False)
-
+# print(df_rods)
+# df_rods.to_excel('oplismoi_θεμελίωσης.xlsx', index=False)
 
 #### run module ####
 if __name__ == "__main__":  
