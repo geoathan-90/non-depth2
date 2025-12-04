@@ -9,6 +9,10 @@ def volume(side, height):               # όγκος (πλευρά, ύψος)
 def weight(density, volume):            # βάρος (πυκνότητα, όγκος)  
     return density * volume             #       = πυκνότητα * όγκος 
 
+def rebar_kg_per_m(diameter, density=7850):      # βάρος οπλισμού ανά μέτρο (διάμετρος)
+    area = (np.pi/4) * (diameter/1000)**2   # εμβαδό διατομής σε m2                  
+    return area * density                   # βάρος ανά μέτρο = εμβαδό * πυκνότητα
+
 #### read data ####
 
 plaka = pd.read_csv('oplismoi_plakas.csv',header=None)
