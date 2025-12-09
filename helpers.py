@@ -13,6 +13,21 @@ def rebar_kg_per_m(diameter, density=7850):      # βάρος οπλισμού �
     area = (np.pi/4) * (diameter/1000)**2   # εμβαδό διατομής σε m2                  
     return area * density                   # βάρος ανά μέτρο = εμβαδό * πυκνότητα
 
+def pick_label(value, bins, labels):
+    """
+    Mimic pd.cut(..., right=True) for a single value - no need to pass a Series arg
+    """
+    bins = np.asarray(bins, dtype=float)
+    labels = np.asarray(labels)
+
+    idx = np.searchsorted(bins, value, side='right') - 1
+    # clamp just in case
+    if idx < 0:
+        idx = 0
+    elif idx >= len(labels):
+        idx = len(labels) - 1
+    return labels[idx]
+
 #### read data ####
 
 plaka = pd.read_csv('oplismoi_plakas.csv',header=None)
@@ -57,12 +72,12 @@ labels_st_main = styliskos.iloc[:, 0].values[::-1]
 ### ΕΠΙΛΟΓΗ ΟΠΛΙΣΜΟΥ ΘΛΙΨΗΣ ###
 
 def compression_rod_selection(cuttoff_value=18.43):
-    selection10 = pd.cut(pd.Series([cuttoff_value]), bins=bins10, labels=labels10, right=True).astype(str)
-    selection12 = pd.cut(pd.Series([cuttoff_value]), bins=bins12, labels=labels12, right=True).astype(str)
-    selection14 = pd.cut(pd.Series([cuttoff_value]), bins=bins14, labels=labels14, right=True).astype(str)
-    selection16 = pd.cut(pd.Series([cuttoff_value]), bins=bins16, labels=labels16, right=True).astype(str)
-    selection18 = pd.cut(pd.Series([cuttoff_value]), bins=bins18, labels=labels18, right=True).astype(str)
-    selection20 = pd.cut(pd.Series([cuttoff_value]), bins=bins20, labels=labels20, right=True).astype(str)    
+    selection10 = pick_label(cuttoff_value, bins10, labels10)
+    selection12 = pick_label(cuttoff_value, bins12, labels12)
+    selection14 = pick_label(cuttoff_value, bins14, labels14)
+    selection16 = pick_label(cuttoff_value, bins16, labels16)
+    selection18 = pick_label(cuttoff_value, bins18, labels18)
+    selection20 = pick_label(cuttoff_value, bins20, labels20)    
     return selection10, selection12, selection14, selection16, selection18, selection20 
 
 def compression_rod_parser(s):
@@ -74,12 +89,12 @@ def compression_rod_parser(s):
 ### ΕΠΙΛΟΓΗ ΟΠΛΙΣΜΟΥ ΕΦΕΛΚΥΣΜΟΥ ###
 
 def uplift_rod_selection(cuttoff_value=14.39):
-    selection10 = pd.cut(pd.Series([cuttoff_value]), bins=bins10, labels=labels10, right=True).astype(str)
-    selection12 = pd.cut(pd.Series([cuttoff_value]), bins=bins12, labels=labels12, right=True).astype(str)
-    selection14 = pd.cut(pd.Series([cuttoff_value]), bins=bins14, labels=labels14, right=True).astype(str)
-    selection16 = pd.cut(pd.Series([cuttoff_value]), bins=bins16, labels=labels16, right=True).astype(str)
-    selection18 = pd.cut(pd.Series([cuttoff_value]), bins=bins18, labels=labels18, right=True).astype(str)
-    selection20 = pd.cut(pd.Series([cuttoff_value]), bins=bins20, labels=labels20, right=True).astype(str)
+    selection10 = pick_label(cuttoff_value, bins10, labels10)
+    selection12 = pick_label(cuttoff_value, bins12, labels12)
+    selection14 = pick_label(cuttoff_value, bins14, labels14)
+    selection16 = pick_label(cuttoff_value, bins16, labels16)
+    selection18 = pick_label(cuttoff_value, bins18, labels18)
+    selection20 = pick_label(cuttoff_value, bins20, labels20)
     return selection10, selection12, selection14, selection16, selection18, selection20
 
 def uplift_rod_parser(s):
@@ -91,7 +106,7 @@ def uplift_rod_parser(s):
 ### ΕΠΙΛΟΓΗ ΟΠΛΙΣΜΟΥ ΣΤΥΛΙΣΚΟΥ ###
 
 def styliskos_rod_selection(cuttoff_value=19.33):
-    selection_main = pd.cut(pd.Series([cuttoff_value]), bins=bins_st, labels=labels_st_main, right=True).astype(str)
+    selection_main = pick_label(cuttoff_value, bins_st, labels_st_main)
     if cuttoff_value<=10.81:
         selection_aux = "Φ6/15"
     else: selection_aux = "Φ8/20"

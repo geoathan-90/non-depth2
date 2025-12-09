@@ -14,9 +14,6 @@ concrete_density = 2400  # kg/m3        # ειδικό βάρος οπλισμέ
 aoplo_density = 2000  # kg/m3           # ειδικό βάρος άοπλου σκυροδέματος
 epixosi_density = 1600  # kg/m3         # ειδικό βάρος επίχωσης
 
-
-
-
 #### conditions ####
 
 Tower = "T5"
@@ -92,12 +89,12 @@ if Kh_c<9.4:
 kh_bins   = [8.40, 9.70, 12.55, 18.80, 25.90, np.inf]
 kh_labels = [0.47, 0.46, 0.45, 0.44, 0.43]
 
-Ke_c = pd.cut(pd.Series([Kh_c]), bins=kh_bins, labels=kh_labels, right=True).astype(float)
+Ke_c = pick_label(Kh_c, kh_bins, kh_labels) 
 
 fex_c = Ke_c*Mp/(h4-0.05)
 
-compression_options = compression_rod_selection(fex_c[0])
-compression_selected =  compression_options[5].values[0]  
+compression_options = compression_rod_selection(fex_c)
+compression_selected =  compression_options[5]  
 
 compression_rod_length = A - 2*buffer
 compression_rod_spacing = compression_rod_parser(compression_selected)[1]
@@ -123,12 +120,12 @@ factor_u = 1.0  # συντελεστής για διπλούς οπλισμού�
 if Kh_u<9.4: 
         factor_u = 2.0
 
-Ke_u = pd.cut(pd.Series([Kh_u]), bins=kh_bins, labels=kh_labels, right=True).astype(float)
+Ke_u = pick_label(Kh_u, kh_bins, kh_labels)
 
 fex_u = Ke_u*Mul/(h4-0.05)
 
-uplift_options = uplift_rod_selection(fex_u[0])
-uplift_selected =  uplift_options[5].values[0]   
+uplift_options = uplift_rod_selection(fex_u)
+uplift_selected =  uplift_options[5]
 
 uplift_rod_length = A - 2*buffer
 uplift_rod_spacing = uplift_rod_parser(uplift_selected)[1]
@@ -143,13 +140,11 @@ Mst = (h1 + h2 + h3)*Hul/1000
 
 Kh_st = (C1*100-5)/np.sqrt(Mst/C1)
 
-Ke_st = pd.cut(pd.Series([Kh_st]), bins=kh_bins, labels=kh_labels, right=True).astype(float)
+Ke_st = pick_label(Kh_st, kh_bins, kh_labels)
 
 fex_st = Ke_st*Mst/(C1 - 0.05)
 
-styliskos_options = styliskos_rod_selection(fex_st[0])
-styliskos_selected_main = styliskos_options[0].values[0]
-styliskos_selected_aux  = styliskos_options[1]
+styliskos_selected_main, styliskos_selected_aux  = styliskos_rod_selection(fex_st)
 
 styliskos_rod_length = H + h1 + h2 - h5 - 0.15
 
@@ -316,10 +311,14 @@ df_rods = pd.DataFrame(rows, columns=columns)
 df_rods['Βάρος/τεμ. (kg)'] = df_rods['Βάρος/τεμ. (kg)'].round(2)
 df_rods['Συνολικό βάρος (kg)'] = df_rods['Συνολικό βάρος (kg)'].round(2)
 
+total_steel_weight = df_rods['Συνολικό βάρος (kg)'].sum()
+
 # Optional: print or export
 # print(df_rods)
 # df_rods.to_excel('oplismoi_θεμελίωσης.xlsx', index=False)
 
 #### run module ####
-if __name__ == "__main__":  
-        pass
+if __name__ == "__main__":
+    #print(df_rods)
+    print(df_rods['Συνολικό βάρος (kg)'].sum())  
+    pass
